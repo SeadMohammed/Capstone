@@ -1,0 +1,84 @@
+
+/* SignOut */
+.SignOut {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(17, 24, 39, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .SOContent {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    position: relative;
+  }
+  
+  .SOContent .LoginClose {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+  }
+
+  .SOContent .LoginClose:hover {
+    color: #111827;
+  }
+  
+  .SOContent h3 {
+    margin-bottom: 1rem;
+    text-align: center;
+    color: #b91c1c;      
+    font-size: 1.25rem;
+  }
+  
+  .SOContent p {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #4b5563;
+  }
+  
+  .SOContent .confirm-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .SOConfirm {
+    flex: 1;
+    margin-right: 0.5rem;
+    background-color: #dc2626;
+    color: #ffffff;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .SOConfirm:hover {
+    background-color: #b91c1c;
+  }
+  
+  .SOCancel {
+    flex: 1;
+    margin-left: 0.5rem;
+    background-color: #e5e7eb;
+    color: #374151;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .SOCancel:hover {
+    background-color: #d1d5db;
+  }
+  
