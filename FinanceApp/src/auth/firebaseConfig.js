@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: "financial-application-ddfa0.firebaseapp.com",
-    projectId: "financial-application-ddfa0",
-    storageBucket: "financial-application-ddfa0.firebasestorage.app",
-    messagingSenderId: "1098019314225",
-    appId: "1:1098019314225:web:bb528598b5ae2d6bb71310",
-    measurementId: "G-WTMZLXTS0X",
+    authDomain: "clarityai-8d562.firebaseapp.com",
+    projectId: "clarityai-8d562",
+    storageBucket: "clarityai-8d562.firebasestorage.app",
+    messagingSenderId: "315016782530",
+    appId: "1:315016782530:web:28efb99e340e9d550b115b",
+    measurementId: "G-B815V2N3SS"
 };
 
 
