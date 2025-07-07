@@ -1,6 +1,6 @@
 
 
-
+import { useAuth } from '../auth/authHelpers';
 import { signInWithPhoneNumber, signInWithPopup } from 'firebase/auth';
 import { useState, useRef , useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,8 +48,10 @@ export default function SignUp({ onClose }) {
             await signup(username,email,password);
             closeModal();
         } catch (err) {
-            setError(err);
-            console.log(err);
+            setError(err.message || 'Failed to signup');
+            console.error(err);
+        } finally {
+          setLoading(false)
         }
     };
 
@@ -60,8 +62,10 @@ export default function SignUp({ onClose }) {
       await signInWithPopup(auth, googleProvider)
       closeModal();
     } catch (err) {
-      setError(err);
-      console.log(err);
+      setError(err.message || "Failed to signup with Google");
+      console.errro(err);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -80,6 +84,7 @@ export default function SignUp({ onClose }) {
             value={username}
             onChange={e => setUsername(e.target.value)}
             required
+            disabled={loading}
           />
           <input
             type="email"
@@ -87,6 +92,7 @@ export default function SignUp({ onClose }) {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
           <input
             type="password"
@@ -94,6 +100,7 @@ export default function SignUp({ onClose }) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
           {error && <p className="error">{error}</p>}
           <button type="submit">
@@ -110,6 +117,7 @@ export default function SignUp({ onClose }) {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
+            disabled={loading}
           >
             Log In
           </button>
