@@ -12,7 +12,7 @@ A modern personal finance web application built with React + Firebase, featuring
 - 💬 **Integrated AI Chatbot powered by Gemini**
   - Real-time AI conversation
   - Messages stored and retrieved from Firestore
-  - Uses the [Firebase “Chatbot with Gemini” Extension](https://firebase.google.com/products/extensions/googlecloud-firestore-genai-chatbot)
+  - Uses the [Firebase “Chatbot with Gemini” Extension](https://extensions.dev/blogs/chatbot-with-gemini-firebase-extension)
 
 ---
 
