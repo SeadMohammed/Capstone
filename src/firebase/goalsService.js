@@ -15,11 +15,13 @@ export const getGoals = async (userId) => {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
-export const addGoal = async (userId, title) => {
+export const addGoal = async (userId, title, dueDate, notes) => {
   const goalsRef = collection(db, "users", userId, "goals");
   await addDoc(goalsRef, {
     title,
     progress: 0,
+    dueDate,
+    notes,
     createdAt: serverTimestamp(),
   });
 };

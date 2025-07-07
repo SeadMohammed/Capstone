@@ -5,7 +5,17 @@ import { auth } from "../auth/firebaseConfig";
 export default function Goals() {
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [notes, setNotes] = useState("");
 
+  //editing
+  const [editingGoalId, setEditingGoalId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingDueDate, setEditingDueDate] = useState("");
+  const [editingNotes, setEditingNotes] = useState("");
+
+  
+  
   const fetchGoals = async () => {
     const user = auth.currentUser;
     if (!user) return;
@@ -16,8 +26,10 @@ export default function Goals() {
   const handleAdd = async () => {
     const user = auth.currentUser;
     if (!user || !newGoal) return;
-    await addGoal(user.uid, newGoal);
+    await addGoal(user.uid, newGoal, dueDate, notes);
     setNewGoal("");
+    setDueDate("");
+    setNotes("");
     fetchGoals();
   };
 
@@ -25,6 +37,38 @@ export default function Goals() {
     const user = auth.currentUser;
     if (!user) return;
     await deleteGoal(user.uid, goalId);
+    fetchGoals();
+  };
+
+  // Start editing a goal
+  const handleEdit = (goal) => {
+    setEditingGoalId(goal.id);
+    setEditingTitle(goal.title);
+    setEditingDueDate(goal.dueDate);
+    setEditingNotes(goal.notes);
+  };
+
+  // Cancel editing the goal user is editing
+  const handleCancel = () => {
+    setEditingGoalId(null);
+    setEditingTitle("");
+    setEditingDueDate("");
+    setEditingNotes("");
+  };
+
+  // Save edited goal title
+  const handleSave = async () => {
+    const user = auth.currentUser;
+    if (!user || !editingTitle) return;
+    await updateGoal(user.uid, editingGoalId, { 
+      title: editingTitle,
+      dueDate: editingDueDate,
+      notes: editingNotes,
+     });
+    setEditingGoalId(null);
+    setEditingTitle(""); 
+    setEditingDueDate("");
+    setEditingNotes("");
     fetchGoals();
   };
 
@@ -40,13 +84,51 @@ export default function Goals() {
         onChange={(e) => setNewGoal(e.target.value)}
         placeholder="New goal title"
       />
+      <input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+        placeholder="Date your goal is due"
+      />
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Goal Notes"
+        rows={2}
+      />
       <button onClick={handleAdd}>Add Goal</button>
 
       <ul>
         {goals.map((goal) => (
           <li key={goal.id}>
-            <strong>{goal.title}</strong> - {goal.progress}%
-            <button onClick={() => handleDelete(goal.id)}>Delete</button>
+            {editingGoalId === goal.id ? (
+              <>
+                <input
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                />
+                <input
+                  type="date"
+                  value={editingDueDate}
+                  onChange={(e) => setEditingDueDate(e.target.value)}
+                />
+                <textarea
+                  value={editingNotes}
+                  onChange={(e) => setEditingNotes(e.target.value)}
+                  rows={2}
+                />
+                <button onClick={handleSave}>Save</button>
+                <button onClick={handleCancel}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <strong>{goal.title}</strong> - {goal.progress}%
+                {goal.dueDate && <div>Due: {goal.dueDate}</div>}
+                {goal.notes && <div>Notes: {goal.notes}</div>}
+                <button onClick={() => handleEdit(goal)}>Edit</button>
+                <button onClick={() => handleDelete(goal.id)}>Delete</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
