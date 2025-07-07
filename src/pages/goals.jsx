@@ -3,6 +3,7 @@ import { getGoals, addGoal, deleteGoal, updateGoal } from "../firebase/goalsServ
 import { auth } from "../auth/firebaseConfig";
 
 export default function Goals() {
+  //page elements
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -15,7 +16,7 @@ export default function Goals() {
   const [editingNotes, setEditingNotes] = useState("");
 
   
-  
+  //fetch all the goals
   const fetchGoals = async () => {
     const user = auth.currentUser;
     if (!user) return;
@@ -23,6 +24,7 @@ export default function Goals() {
     setGoals(data);
   };
 
+  //handler for adding a new goal
   const handleAdd = async () => {
     const user = auth.currentUser;
     if (!user || !newGoal) return;
@@ -33,6 +35,7 @@ export default function Goals() {
     fetchGoals();
   };
 
+  //handler for deleting an exisitng goal
   const handleDelete = async (goalId) => {
     const user = auth.currentUser;
     if (!user) return;
@@ -40,7 +43,7 @@ export default function Goals() {
     fetchGoals();
   };
 
-  // Start editing a goal
+  //handler for when you start editing a goal
   const handleEdit = (goal) => {
     setEditingGoalId(goal.id);
     setEditingTitle(goal.title);
@@ -48,7 +51,7 @@ export default function Goals() {
     setEditingNotes(goal.notes);
   };
 
-  // Cancel editing the goal user is editing
+  //handler for when you cancel editing a goal
   const handleCancel = () => {
     setEditingGoalId(null);
     setEditingTitle("");
@@ -56,7 +59,7 @@ export default function Goals() {
     setEditingNotes("");
   };
 
-  // Save edited goal title
+  // Save edited goal title, date, notes
   const handleSave = async () => {
     const user = auth.currentUser;
     if (!user || !editingTitle) return;

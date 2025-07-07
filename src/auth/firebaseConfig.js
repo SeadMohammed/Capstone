@@ -16,6 +16,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+//set the database variable to get the exsisting database from firestore
 const db = getFirestore(app);
 
 export const auth = getAuth(app);
