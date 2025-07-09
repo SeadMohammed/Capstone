@@ -6,7 +6,7 @@ import {
     useMemo,
   } from "react";
 import { auth } from "./firebaseConfig.js";
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, updateProfile} from "firebase/auth";
+import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInWithEmailAndPassword, updateProfile} from "firebase/auth";
 import { AuthContext } from "./authHelpers.js";
 
 //const AuthContext = createContext();
