@@ -76,8 +76,8 @@ export default function Home() {
 
     if (!currentUser) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <h1>LOGGEDOUT HOMEPAGE</h1>
+            <div>
+                <h1>Please log in to view your goals</h1>
             </div>
         );
     }
