@@ -40,8 +40,6 @@ describe('Login baseline test', () => {
         mockLogin.mockReset();
         mockClose.mockReset();
 
-        signInWithPopup.mockResolvedValueOnce({});
-
         // Render popup
         render(
         <BrowserRouter>
@@ -50,7 +48,7 @@ describe('Login baseline test', () => {
         );
     });
 
-    // Normal email/password login
+    // Normal email/password login SUCCESS
     it('logs in with email and password', async () => {
         // Simulate user input
         fireEvent.change(screen.getByPlaceholderText(/email/i), {
@@ -72,8 +70,36 @@ describe('Login baseline test', () => {
         });
     });
 
-    // Google login
+    // Normal email/password login FAILURE
+    it('shows error when email/password login fails', async () => {
+        // Simulate login failure
+        mockLogin.mockRejectedValueOnce(new Error('Invalid credentials'));
+
+        fireEvent.change(screen.getByPlaceholderText(/email/i), {
+            target: { value: 'wrong@example.com' }
+        });
+
+        fireEvent.change(screen.getByPlaceholderText(/password/i), {
+            target: { value: 'wrongpassword' }
+        });
+
+        const loginButton = screen.getAllByRole('button').find(btn =>
+            btn.textContent.toLowerCase().includes('log')
+        );
+        fireEvent.click(loginButton);
+
+        await waitFor(() => {
+            expect(mockLogin).toHaveBeenCalled();
+            expect(mockClose).not.toHaveBeenCalled(); // Should NOT close modal
+            expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
+        });
+    });
+
+    // Google login SUCCESS
     it('logs in with Google when button is clicked', async () => {
+        // Simulate signInWithPopup success
+        signInWithPopup.mockResolvedValueOnce({});
+        
         // Click the Google button
         fireEvent.click(screen.getByText(/continue with google/i));
 
@@ -84,4 +110,17 @@ describe('Login baseline test', () => {
         });
     });
 
+    // Google login FAILURE
+    it('shows error when Google sign-in fails', async () => {
+        // Simulate signInWithPopup failure
+        signInWithPopup.mockRejectedValueOnce(new Error('Failed to Login with Google.'));
+
+        fireEvent.click(screen.getByText(/continue with google/i));
+
+        await waitFor(() => {
+            expect(signInWithPopup).toHaveBeenCalled();
+            expect(mockClose).not.toHaveBeenCalled(); // Should NOT close modal
+            expect(screen.getByText(/Failed to Login with Google./i)).toBeInTheDocument();
+        });
+    });
 });
