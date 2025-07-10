@@ -3,7 +3,7 @@ import { getGoals, addGoal, deleteGoal, updateGoal } from "../firebase/goalsServ
 import { auth } from "../auth/firebaseConfig";
 
 export default function Goals() {
-  //page elements
+  // Page elements
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -20,15 +20,14 @@ export default function Goals() {
   const [editingTargetAmount, setEditingTargetAmount] = useState("");
   const [editingCurrentAmount, setEditingCurrentAmount] = useState("");
   const [editingPriority, setEditingPriority] = useState("medium");
-
   //modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchDate, setSearchDate] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
-
   // Categories
   const priorities = ["high", "medium", "low"];
 
+  
   //fetch all the goals
   const fetchGoals = async () => {
     const user = auth.currentUser;
@@ -37,7 +36,7 @@ export default function Goals() {
     setGoals(data);
   };
 
-  //handler for adding a new goal
+  // Handler for adding a new goal
   const handleAdd = async () => {
     const user = auth.currentUser;
     if (!user || !newGoal) return;
@@ -109,7 +108,6 @@ export default function Goals() {
     if (!current || !target) return 0;
     return Math.min(Math.round((current / target) * 100), 100);
   };
-
   // Get days left until due date
   const getDaysLeft = (dueDate) => {
     if (!dueDate) return null;
@@ -119,7 +117,6 @@ export default function Goals() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
-
   // Get progress color based on percentage
   const getProgressColor = (progress) => {
     if (progress >= 80) return '#10b981'; // green
@@ -127,7 +124,6 @@ export default function Goals() {
     if (progress >= 40) return '#f97316'; // orange
     return '#ef4444'; // red
   };
-
   // Get priority color
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -137,7 +133,6 @@ export default function Goals() {
       default: return '#6b7280';
     }
   };
-
   // Get priority icon
   const getPriorityIcon = (priority) => {
     switch (priority) {
@@ -147,7 +142,6 @@ export default function Goals() {
       default: return '📋';
     }
   };
-
   // Filter and sort goals with smart priority
   const filteredAndSortedGoals = goals
     .filter(goal => {
@@ -193,7 +187,6 @@ export default function Goals() {
       // If both have no due date, maintain original order
       return 0;
     });
-
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -206,7 +199,6 @@ export default function Goals() {
           + Add metric
         </button>
       </div>
-
       <div className="dashboard-filters">
         <div className="filter-group">
           <span>Search by Date</span>
@@ -243,7 +235,6 @@ export default function Goals() {
           </button>
         </div>
       </div>
-
       <div className="metrics-grid">
         {filteredAndSortedGoals.map((goal) => {
           const progress = getProgress(goal.currentAmount, goal.targetAmount);
@@ -370,7 +361,6 @@ export default function Goals() {
           </div>
         </div>
       </div>
-
       {/* Add Goal Modal */}
       {showAddModal && (
         <div className="modal-overlay">

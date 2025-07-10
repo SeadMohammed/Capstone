@@ -5,7 +5,7 @@ import { getGoals } from '../firebase/goalsService'
 export default function Home() {
     const {currentUser} = useAuth();
     const [goals, setGoals] = useState([]);
-
+//hi
     const fetchGoals = async () => {
         try {
             if (!currentUser?.uid) return;
@@ -76,8 +76,8 @@ export default function Home() {
 
     if (!currentUser) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <h1>LOGGEDOUT HOMEPAGE</h1>
+            <div>
+                <h1>Please log in to view your goals</h1>
             </div>
         );
     }
