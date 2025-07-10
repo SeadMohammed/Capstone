@@ -5,7 +5,7 @@ import { getGoals } from '../firebase/goalsService'
 export default function Home() {
     const {currentUser} = useAuth();
     const [goals, setGoals] = useState([]);
-
+//hi
     const fetchGoals = async () => {
         try {
             if (!currentUser?.uid) return;
