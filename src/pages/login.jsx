@@ -56,8 +56,10 @@ export default function Login({ onClose }) {
         } catch (err) {
             // 5/30 TODO: Improve Error Handling (specific errors, etc.)
             // Firebase has specific errors
-            setError('Failed to Login.');
-            console.log(err);
+            setError(err.message || 'Failed to Login.');
+            console.error(err);
+        } finally{
+          setLoading(false);
         }
     };
 
@@ -69,8 +71,10 @@ export default function Login({ onClose }) {
             closeModal();
         } catch (err) {
             // 5/30 TODO: Improve Error Handling (specific errors, etc.)
-            setError('Failed to Login with Google.')
-            setError(err);
+            setError(err.message || 'Failed to Login with Google.')
+            console.error(err);
+        } finally {
+          setLoading(false);
         }
     };
 
@@ -90,6 +94,7 @@ export default function Login({ onClose }) {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
           <input
             type="password"
@@ -97,9 +102,10 @@ export default function Login({ onClose }) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
           {error && <p className="error">{error}</p>}
-          <button type="submit">
+          <button type="submit" disabled={loading}>
             Log In
           </button>
         </form>
@@ -113,6 +119,7 @@ export default function Login({ onClose }) {
           <button
             type="button"
             onClick={() => navigate('/signup', { replace: true })}
+            disabled={loading}
           >
             Sign Up
           </button>
