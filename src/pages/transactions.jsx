@@ -475,8 +475,8 @@ export default function Transactions() {
                 onChange={(e) => setNewTransaction({...newTransaction, type: e.target.value})}
                 className="modal-select"
               >
-                <option value="expense">Expense (Debit)</option>
-                <option value="income">Income (Credit)</option>
+                <option value="expense">Expense </option>
+                <option value="income">Income </option>
               </select>
               <select
                 value={newTransaction.category}
