@@ -1,10 +1,12 @@
 import { useAuth } from '../auth/authHelpers'
 import { useState, useEffect } from 'react'
 import { getGoals } from '../firebase/goalsService'
+import { getTransactions } from '../firebase/transactionsService'
 
 export default function Home() {
     const {currentUser} = useAuth();
     const [goals, setGoals] = useState([]);
+    const [transactions, setTransactions] = useState([]);
 //hi
     const fetchGoals = async () => {
         try {
@@ -14,6 +16,16 @@ export default function Home() {
             setGoals(fetchedGoals);
         } catch (error) {
             console.error('Error fetching goals:', error);
+        }
+    };
+
+    const fetchTransactions = async () => {
+        try {
+            if (!currentUser?.uid) return;
+            const fetchedTransactions = await getTransactions(currentUser.uid);
+            setTransactions(fetchedTransactions);
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
         }
     };
 
@@ -68,9 +80,29 @@ export default function Home() {
         }
     };
 
+    // Calculate financial totals
+    const totalIncome = transactions
+        .filter(t => t.type === "income")
+        .reduce((sum, t) => sum + t.amount, 0);
+    
+    const totalExpenses = transactions
+        .filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const netBalance = totalIncome - totalExpenses;
+
+    // Format currency
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount);
+    };
+
     useEffect(() => {
         if (currentUser) {
             fetchGoals();
+            fetchTransactions();
         }
     }, [currentUser]);
 
@@ -90,7 +122,25 @@ export default function Home() {
         <div className="home-dashboard">
             <div className="welcome-section">
                 <h1>Welcome back, {currentUser.displayName}!</h1>
-                <p>Here's what's coming up for your goals</p>
+                <p>Here's your financial overview and upcoming goals</p>
+            </div>
+
+            {/* Financial Summary Cards */}
+            <div className="summary-cards">
+                <div className="summary-card income">
+                    <div className="summary-label">Total Income</div>
+                    <div className="summary-amount income-amount">{formatCurrency(totalIncome)}</div>
+                </div>
+                <div className="summary-card expense">
+                    <div className="summary-label">Total Expenses</div>
+                    <div className="summary-amount expense-amount">{formatCurrency(totalExpenses)}</div>
+                </div>
+                <div className="summary-card balance">
+                    <div className="summary-label">Net Balance</div>
+                    <div className={`summary-amount ${netBalance >= 0 ? 'positive' : 'negative'}`}>
+                        {formatCurrency(netBalance)}
+                    </div>
+                </div>
             </div>
 
             {upcomingGoals.length > 0 && (
