@@ -136,8 +136,6 @@ export default function Home() {
             console.error('Error fetching transactions:', error);
         } finally {
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching transactions:', error);
         }
     };
 
@@ -531,6 +529,7 @@ export default function Home() {
             ]);
             setLoading(false);
         }
+    };
 
     // Calculate financial totals
     const totalIncome = transactions
