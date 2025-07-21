@@ -63,7 +63,7 @@ export default function SignUp({ onClose }) {
       closeModal();
     } catch (err) {
       setError(err.message || "Failed to signup with Google");
-      console.errro(err);
+      console.error(err);
     } finally {
       setLoading(false)
     }
