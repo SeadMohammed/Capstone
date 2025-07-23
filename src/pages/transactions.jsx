@@ -73,6 +73,7 @@ export default function Transactions() {
     const options = [];
     const today = new Date();
     const currentYear = today.getFullYear();
+    // const currentYear = 2022; // For PDF upload testing, all my example files are 2022
 
     // Add January through December of current year
     for (let month = 0; month < 12; month++) {
@@ -115,6 +116,22 @@ export default function Transactions() {
   const getTransactionsForMonth = () => {
     return transactions
       .filter((transaction) => {
+        let transactionDateStr;
+
+        // Verify date is string
+        if (typeof transaction.date === 'string') {
+          // Use the date if it's already a string
+          transactionDateStr = transaction.date;
+        } else if (
+          transaction.date &&
+          typeof transaction.date.toISOString === 'function'
+        ) {
+          // Convert the date to a string
+          transactionDateStr = transaction.date.toISOString().split('T')[0];
+        } else {
+          return false;
+        }
+
         // Handle both date formats: "07/07/2025" and "2025-07-07"
         let transactionMonth;
         if (transaction.date.includes('/')) {
@@ -144,9 +161,19 @@ export default function Transactions() {
       previousMonth.getMonth() + 1
     ).padStart(2, '0')}`;
 
-    const previousTransactions = transactions.filter(
-      (t) => t.date.substring(0, 7) <= prevMonthString
-    );
+    const previousTransactions = transactions.filter((t) => {
+      // Verify date is string
+      let transactionDateStr;
+
+      if (typeof t.date === 'string') {
+        transactionDateStr = t.date;
+      } else if (t.date && typeof t.date.toISOString === 'function') {
+        transactionDateStr = t.date.toISOString().split('T')[0];
+      } else {
+        return false;
+      }
+      return t.date.substring(0, 7) <= prevMonthString;
+    });
     const startingBalance = previousTransactions.reduce((sum, t) => {
       return sum + (t.type === 'income' ? t.amount : -t.amount);
     }, 0);
@@ -765,27 +792,118 @@ export default function Transactions() {
   // Handler for when a file is selected
   const handleFileChange = async (event) => {
     const files = event.target.files;
-    if (files.length > 0) {
-      const selectedFile = files[0];
-      console.log('Selected file:', selectedFile.name, selectedFile.type);
+    if (files.length === 0) {
+      return;
+    }
+    const selectedFile = files[0];
 
-      try {
-        const filePart = await fileToGenerativePart(selectedFile);
-
-        // DEFINE PROMPT HERE
-        const prompt =
-          'take this file (either pdf or csv) and return it to me in a parsed json file of the transactions with the following categories: date, description, amount';
-
-        // Generate response
-        const result = await model.generateContent([prompt, filePart]);
-        const responseText = result.response.text();
-
-        console.log('AI Response:', responseText);
-        alert('AI Summary:\n\n' + (responseText || 'No text in response.'));
-      } catch (error) {
-        console.error('Error processing file with AI:', error);
-        alert('Failed to process file with AI. Check console for details.');
+    // Check user
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert('Error: You must be logged in to upload transactions.');
+        return;
       }
+      const userId = user.uid;
+
+      const filePart = await fileToGenerativePart(selectedFile);
+
+      // Categories
+      const validCategories = [
+        'Food & Dining',
+        'Transportation',
+        'Shopping',
+        'Entertainment',
+        'Bills & Utilities',
+        'Healthcare',
+        'Education',
+        'Travel',
+        'Investment',
+        'Salary',
+        'Freelance',
+        'Other',
+      ].join(', ');
+
+      // Enter prompt here:
+      const prompt = `
+          Parse all transactions from the provided file.
+          Return a valid JSON array where each object has these keys: "date", "description", "amount", "isRecurring", "recurring", "category".
+
+          - "date": A string in YYYY-MM-DD format.
+          - "description": A string.
+          - "amount": A number (negative for debits, positive for credits).
+          - "isRecurring": A boolean. Set to true if it seems like a recurring bill.
+          - "recurring": A string ('monthly', 'annually', or 'none').
+          - "category": A string. Choose the single most appropriate category for each transaction from this list: ${validCategories}. For example, a charge from 'LYFT' should be 'Transportation'. A credit from a payroll company should be 'Salary'. If no specific category fits, use 'Other'.
+
+          Only output the raw JSON array without any markdown formatting.
+      `;
+
+      // Generate response
+      const result = await model.generateContent([prompt, filePart]);
+      let responseText = result.response.text();
+
+      const jsonRegex = /```json\n?([\s\S]*?)\n?```/;
+      const match = responseText.match(jsonRegex);
+      if (match) {
+        responseText = match[1];
+      }
+
+      // Parse response JSON
+      let transactions;
+      try {
+        transactions = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Error parsing cleaned response', e);
+        return;
+      }
+
+      if (!Array.isArray(transactions)) {
+        throw new Error('Parsed data is not an array.');
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      // Add transactions
+      for (const trx of transactions) {
+        try {
+          const amount = Number(trx.amount);
+          if (isNaN(amount)) continue;
+
+          const isRecurring = trx.isRecurring === true;
+          const recurring = trx.recurring || 'none';
+          const recurringSeriesId = isRecurring
+            ? `${trx.description}-${new Date(trx.date).getFullYear()}`
+            : null;
+
+          const category = trx.category || 'Other';
+
+          await addTransaction(
+            userId,
+            trx.description,
+            amount,
+            amount >= 0 ? 'income' : 'expense',
+            category,
+            trx.date,
+            recurring,
+            isRecurring,
+            recurringSeriesId
+          );
+          successCount++;
+        } catch (addError) {
+          errorCount++;
+          console.error('Failed to add transaction:', trx, addError);
+        }
+      }
+
+      alert(
+        `File processing complete!\n\nSuccessfully added: ${successCount}\nFailed: ${errorCount}`
+      );
+      await fetchTransactions();
+    } catch (error) {
+      console.error('Error processing file with AI:', error);
+      alert('Failed to process file.');
     }
   };
 
