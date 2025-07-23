@@ -7,6 +7,7 @@ import Goals from './pages/goals.jsx'
 import Login from './pages/login.jsx';
 import SignUp from './pages/signup.jsx';
 import SignOut from './pages/signout.jsx';
+import './components/geminiBar.jsx'; 
 
 export default function App() {
 
