@@ -1,0 +1,154 @@
+/* Loading Screen */
+.LoadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  .LoadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .LoadingIcon {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  }
+  
+  .LoadingIcon::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: linear-gradient(135deg, #10b981, #3b82f6, #8b5cf6);
+    border-radius: 50%;
+    z-index: -1;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .RefreshIcon {
+    color: white;
+    animation: spin 2s linear infinite;
+  }
+  
+  .LoadingContent h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.025em;
+  }
+  
+  .LoadingContent p {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .LoadingDots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  
+  .LoadingDots span {
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 50%;
+    animation: bounce 1.4s ease-in-out infinite both;
+  }
+  
+  .LoadingDots span:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  
+  .LoadingDots span:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+  
+  .LoadingDots span:nth-child(3) {
+    animation-delay: 0s;
+  }
+  
+  /* Animations */
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+  
+  @keyframes bounce {
+    0%, 80%, 100% {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
+    40% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 480px) {
+    .LoadingContainer {
+      margin: 1rem;
+      padding: 2rem;
+    }
+    
+    .LoadingIcon {
+      width: 64px;
+      height: 64px;
+    }
+    
+    .RefreshIcon svg {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .LoadingContent h2 {
+      font-size: 1.5rem;
+    }
+  }
+  

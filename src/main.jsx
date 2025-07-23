@@ -11,7 +11,8 @@ import './index.css';  // Global styles
 import './styles/navBar.css';
 import './styles/login.css';
 import './styles/signout.css';
-import './styles/home.css'
+import './styles/home.css';
+import './styles/refreshScreen.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
