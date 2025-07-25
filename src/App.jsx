@@ -8,6 +8,7 @@ import Login from './pages/login.jsx';
 import SignUp from './pages/signup.jsx';
 import SignOut from './pages/signout.jsx';
 import './components/geminiBar.jsx'; 
+import Gemini from './components/geminiWindow.jsx'
 
 export default function App() {
 
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/signout" element={<SignOut />} />
         </Routes>
       </div>
+      <Gemini />
     </div>
   );
 }
