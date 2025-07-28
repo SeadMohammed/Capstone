@@ -19,7 +19,7 @@ export const model = getGenerativeModel(ai, { model: 'gemini-2.5-flash' });
 
 // Local history array
 let history = [];
-async function sendPrompt(msg) {
+export async function sendPrompt(msg) {
   const user = auth.currentUser;
   if (!user) {
     console.error("No user is signed in.");
@@ -64,6 +64,7 @@ async function sendPrompt(msg) {
   });
 
   console.log(text);
+  return text; 
 }
 
 // Example usage
