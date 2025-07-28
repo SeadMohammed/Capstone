@@ -1,5 +1,9 @@
 import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai';
 import { initializeApp } from 'firebase/app';
+import { getGoals } from '../firebase/goalsService';
+import { getTransactions } from '../firebase/transactionsService';
+import { auth } from "../auth/firebaseConfig";
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: 'clarityai-8d562.firebaseapp.com',
@@ -15,25 +19,44 @@ export const model = getGenerativeModel(ai, { model: 'gemini-2.5-flash' });
 
 // Local history array
 let history = [];
-
 async function sendPrompt(msg) {
-  // Add user message to history
+  const user = auth.currentUser;
+  if (!user) {
+    console.error("No user is signed in.");
+    return;
+  }
+  const userId = user.uid;
+
+  // Take Goals and transactions from firebase
+  const goals = await getGoals(userId);
+  const transactions = await getTransactions(userId);
+
+  // format the data for it to be used in the prompt
+  const goalsContext = `Goals:\n${goals.map(g => `- ${g.title} (${g.currentAmount}/${g.targetAmount}) due ${g.dueDate}`).join('\n')}`;
+  const transactionsContext = `Transactions:\n${transactions.slice(0, 5).map(t => `- ${t.date}: ${t.description} $${t.amount} (${t.category})`).join('\n')}`;
+
+  // Put it all together
+  const context = `${goalsContext}\n\n${transactionsContext}\n\nUser question: ${msg}`;
+
+
+
+  // Port history into the chat
+  const chat = model.startChat({
+    history,
+    generationConfig: {
+      maxOutputTokens: 200,
+    },
+  });
+
+  const result = await chat.sendMessage(context);
+  const response = await result.response;
+  const text = response.text();
+
+  // History for user
   history.push({
     role: 'user',
     parts: [{ text: msg }],
   });
-
-  const chat = model.startChat({
-    history,
-    generationConfig: {
-      maxOutputTokens: 100,
-    },
-  });
-
-  const result = await chat.sendMessage(msg);
-  const response = await result.response;
-  const text = response.text();
-
   // Add model response to history
   history.push({
     role: 'model',
