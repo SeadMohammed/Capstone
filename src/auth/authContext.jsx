@@ -8,7 +8,7 @@ import {
 import { auth } from "./firebaseConfig.js";
 import { createUserWithEmailAndPassword, onAuthStateChanged, signOut, signInWithEmailAndPassword, updateProfile} from "firebase/auth";
 import { AuthContext } from "./authHelpers.js";
-
+import  Refresh from "../components/refreshScreen.jsx";
 //const AuthContext = createContext();
   
 export function AuthProvider({ children }) {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
    
     //REFRESH SCREEN
     if (loading) {
-      return <div>Loading authentication...</div>;
+     return <Refresh/>;
     }
   
     return (

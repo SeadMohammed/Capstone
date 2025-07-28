@@ -30,6 +30,11 @@ export default function Transactions() {
     )}`;
   });
 
+  // Year selection
+  const [selectedYear, setSelectedYear] = useState(() => {
+    return new Date().getFullYear();
+  });
+
   // Editing
   const [editingTransactionId, setEditingTransactionId] = useState(null);
   const [editingTransaction, setEditingTransaction] = useState({
@@ -68,16 +73,23 @@ export default function Transactions() {
     'Other',
   ];
 
-  // Generate month options from January to next January
+  // Generate year options from 2020 onwards
+  const getYearOptions = () => {
+    const options = [];
+    const currentYear = new Date().getFullYear();
+    for (let year = 2020; year <= currentYear + 1; year++) {
+      options.push(year);
+    }
+    return options;
+  };
+
+  // Generate month options for the selected year
   const getMonthOptions = () => {
     const options = [];
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    // const currentYear = 2022; // For PDF upload testing, all my example files are 2022
-
-    // Add January through December of current year
+    
+    // Add January through December of selected year
     for (let month = 0; month < 12; month++) {
-      const date = new Date(currentYear, month, 1);
+      const date = new Date(selectedYear, month, 1);
       const value = `${date.getFullYear()}-${String(
         date.getMonth() + 1
       ).padStart(2, '0')}`;
@@ -91,23 +103,6 @@ export default function Transactions() {
       });
       options.push({ value, label, shortLabel });
     }
-
-    // Add January of next year
-    const nextYearJan = new Date(currentYear + 1, 0, 1);
-    const nextJanValue = `${nextYearJan.getFullYear()}-01`;
-    const nextJanLabel = nextYearJan.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-    });
-    const nextJanShortLabel = nextYearJan.toLocaleDateString('en-US', {
-      month: 'short',
-      year: '2-digit',
-    });
-    options.push({
-      value: nextJanValue,
-      label: nextJanLabel,
-      shortLabel: nextJanShortLabel,
-    });
 
     return options;
   };
@@ -1433,6 +1428,27 @@ export default function Transactions() {
 
       {/* Month Selector Sidebar */}
       <div className='month-selector-sidebar'>
+        <h3>Select Year</h3>
+        <div className='year-selector'>
+          <select 
+            value={selectedYear} 
+            onChange={(e) => {
+              const newYear = parseInt(e.target.value);
+              setSelectedYear(newYear);
+              // Update selected month to January of the new year if current month doesn't exist in new year
+              const currentMonth = selectedMonth.split('-')[1];
+              setSelectedMonth(`${newYear}-${currentMonth}`);
+            }}
+            className='year-dropdown'
+          >
+            {getYearOptions().map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        
         <h3>Select Month</h3>
         <div className='month-boxes'>
           {getMonthOptions().map((option) => (
