@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/geminiWindow.css'
-
+import {sendPrompt} from './geminiBar.jsx';
 const Gemini = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -33,12 +33,12 @@ const Gemini = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
-
+    const responseText = await sendPrompt(userMessage.text);
     // Simulate AI response (replace with actual AI API call)
     setTimeout(() => {
       const botMessage = {
         id: Date.now() + 1,
-        text: `SAID: "${userMessage.text}".`,
+        text: `${responseText}.`,
         sender: 'bot',
         timestamp: new Date()
       };
