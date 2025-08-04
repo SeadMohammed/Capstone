@@ -44,7 +44,7 @@ export async function sendPrompt(msg) {
   const chat = model.startChat({
     history,
     generationConfig: {
-      maxOutputTokens: 200,
+      
     },
   });
 
