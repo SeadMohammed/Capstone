@@ -33,10 +33,16 @@ export async function sendPrompt(msg) {
 
   // format the data for it to be used in the prompt
   const goalsContext = `Goals:\n${goals.map(g => `- ${g.title} (${g.currentAmount}/${g.targetAmount}) due ${g.dueDate}`).join('\n')}`;
-  const transactionsContext = `Transactions:\n${transactions.slice(0, 5).map(t => `- ${t.date}: ${t.description} $${t.amount} (${t.category})`).join('\n')}`;
-
+  const transactionsContext = `Transactions:\n${transactions.map(t => `- ${t.date}: ${t.description} $${t.amount} (${t.category}) ${t.type}`).join('\n')}`;
+  const time = new Date().toLocaleString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
   // Put it all together
-  const context = `${goalsContext}\n\n${transactionsContext}\n\n You are a financial assistant. Use the provided goals and transactions to answer the user's questions accurately and concisely, perferrably within 2-3 paragraphs. User question: ${msg}`;
+  const context = `${goalsContext}\n\n${transactionsContext}\n\n The Date and time is: ${time}\n\n You are a financial assistant. Use the provided goals and transactions to answer the user's questions accurately and concisely, perferrably within 2-3 paragraphs. Not that if it says subscription, it's a subscription to a service. User question: ${msg}`;
 
 
 
@@ -44,8 +50,6 @@ export async function sendPrompt(msg) {
   const chat = model.startChat({
     history,
     generationConfig: {
-      temperature: 0.2,
-      topP: 0.95,
     },
   });
 
