@@ -6,7 +6,9 @@ import {
   updateTransaction,
 } from '../firebase/transactionsService';
 import { auth } from '../auth/firebaseConfig';
-import { fileToGenerativePart, model } from '../components/geminiBar';
+
+import { createPartFromUri, GoogleGenAI } from '@google/genai';
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function Transactions() {
   // Page elements
@@ -86,7 +88,7 @@ export default function Transactions() {
   // Generate month options for the selected year
   const getMonthOptions = () => {
     const options = [];
-    
+
     // Add January through December of selected year
     for (let month = 0; month < 12; month++) {
       const date = new Date(selectedYear, month, 1);
@@ -801,7 +803,28 @@ export default function Transactions() {
       }
       const userId = user.uid;
 
-      const filePart = await fileToGenerativePart(selectedFile);
+      // Upload file to AI
+      const file = await ai.files.upload({
+        file: selectedFile,
+        config: {
+          displayName: 'your_file',
+        },
+      });
+
+      // Wait for AI to process file
+      let getFile = await ai.files.get({ name: file.name });
+      while (getFile.state === 'PROCESSING') {
+        getFile = await ai.files.get({ name: file.name });
+        console.log(`current file status: ${getFile.state}`);
+        console.log('File is still processing, retrying in 5 seconds');
+
+        await new Promise((resolve) => {
+          setTimeout(resolve, 5000);
+        });
+      }
+      if (file.state === 'FAILED') {
+        throw new Error('File processing failed.');
+      }
 
       // Categories
       const validCategories = [
@@ -820,8 +843,8 @@ export default function Transactions() {
       ].join(', ');
 
       // Enter prompt here:
-      const prompt = `
-          Parse all transactions from the provided file.
+      const content = [
+        ` Parse all transactions from the provided file.
           Return a valid JSON array where each object has these keys: "date", "description", "amount", "isRecurring", "recurring", "category".
 
           - "date": A string in YYYY-MM-DD format.
@@ -831,20 +854,29 @@ export default function Transactions() {
           - "recurring": A string ('monthly', 'annually', or 'none').
           - "category": A string. Choose the single most appropriate category for each transaction from this list: ${validCategories}. For example, a charge from 'LYFT' should be 'Transportation'. A credit from a payroll company should be 'Salary'. If no specific category fits, use 'Other'.
 
-          Only output the raw JSON array without any markdown formatting.
-      `;
+          Only output the raw JSON array without any markdown formatting.`,
+      ];
+
+      // Add file to content
+      if (file.uri && file.mimeType) {
+        const fileContent = createPartFromUri(file.uri, file.mimeType);
+        content.push(fileContent);
+      }
 
       // Generate response
-      const result = await model.generateContent([prompt, filePart]);
-      let responseText = result.response.text();
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: content,
+      });
+      let responseText = response.text;
 
+      // Parse response JSON
       const jsonRegex = /```json\n?([\s\S]*?)\n?```/;
       const match = responseText.match(jsonRegex);
       if (match) {
         responseText = match[1];
       }
 
-      // Parse response JSON
       let transactions;
       try {
         transactions = JSON.parse(responseText);
@@ -1430,8 +1462,8 @@ export default function Transactions() {
       <div className='month-selector-sidebar'>
         <h3>Select Year</h3>
         <div className='year-selector'>
-          <select 
-            value={selectedYear} 
+          <select
+            value={selectedYear}
             onChange={(e) => {
               const newYear = parseInt(e.target.value);
               setSelectedYear(newYear);
@@ -1448,7 +1480,7 @@ export default function Transactions() {
             ))}
           </select>
         </div>
-        
+
         <h3>Select Month</h3>
         <div className='month-boxes'>
           {getMonthOptions().map((option) => (

@@ -36,7 +36,7 @@ export async function sendPrompt(msg) {
   const transactionsContext = `Transactions:\n${transactions.slice(0, 5).map(t => `- ${t.date}: ${t.description} $${t.amount} (${t.category})`).join('\n')}`;
 
   // Put it all together
-  const context = `${goalsContext}\n\n${transactionsContext}\n\nUser question: ${msg}`;
+  const context = `${goalsContext}\n\n${transactionsContext}\n\n You are a financial assistant. Use the provided goals and transactions to answer the user's questions accurately and concisely, perferrably within 2-3 paragraphs. User question: ${msg}`;
 
 
 
@@ -44,7 +44,8 @@ export async function sendPrompt(msg) {
   const chat = model.startChat({
     history,
     generationConfig: {
-      maxOutputTokens: 200,
+      temperature: 0.2,
+      topP: 0.95,
     },
   });
 
