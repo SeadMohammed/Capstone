@@ -38,7 +38,7 @@ const Gemini = () => {
     setTimeout(() => {
       const botMessage = {
         id: Date.now() + 1,
-        text: `${responseText}.`,
+        text: `${responseText}`,
         sender: 'bot',
         timestamp: new Date()
       };
